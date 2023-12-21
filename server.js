@@ -35,7 +35,7 @@ app.post('/protestos-forma-busquedas/por-ejecutivo-fecha', (req, res) => {
     })
 })
 app.post('/protestos-fondo-busquedas/por-ejecutivo-fecha', (req, res) => {
-  db.findData('bci_ChequeProtestadoFondo', { _userAlias: userAlias}, projectChequeFondo)
+  db.findData('bci_ChequeProtestadoFondo', { _userAlias: userAlias,  'cheque.monto' : 73826900 }, projectChequeFondo)
     .then(cheques => {
       if (cheques.length === 0) {
         res.status(404).send('No se encontraron cheques protestados para el ejecutivo ' + userAlias)
