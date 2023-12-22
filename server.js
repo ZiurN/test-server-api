@@ -47,6 +47,22 @@ app.post('/protestos-fondo-busquedas/por-ejecutivo-fecha', (req, res) => {
       res.status(500).send(err)
     })
 })
+/**
+ * PUT urls
+ */
+app.put('/protestos-fondo', (req, res) => {
+  const cheques = req.body.protestos
+  const fecha = req.body.fecha
+  let response = {
+    ejecucionCodigo: 'protestado',
+    cheque: {
+        serial: cheques[0].serial,
+        monto: 10,
+        fecha: fecha
+    }
+  }
+  res.send(response)
+})
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
