@@ -53,15 +53,19 @@ app.post('/protestos-fondo-busquedas/por-ejecutivo-fecha', (req, res) => {
 app.put('/protestos-fondo', (req, res) => {
   const cheques = req.body.protestos
   const fecha = req.body.fecha
-  let response = {
-    ejecucionCodigo: 'protestado',
-    cheque: {
-        serial: cheques[0].serial,
-        monto: 10,
-        fecha: fecha
+  let responses = []
+  cheques.forEach(cheque => {
+    let response = {
+      ejecucionCodigo: cheque.estado,
+      cheque: {
+          serial: cheque.serial,
+          monto: 10,
+          fecha: fecha
+      }
     }
-  }
-  res.send([response])
+    responses.push(response)
+  })
+  res.send(responses)
 })
 
 const PORT = process.env.PORT || 3000
