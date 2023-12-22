@@ -61,7 +61,7 @@ app.put('/protestos-fondo', (req, res) => {
         fecha: fecha
     }
   }
-  res.send(response)
+  res.send([response])
 })
 
 const PORT = process.env.PORT || 3000
