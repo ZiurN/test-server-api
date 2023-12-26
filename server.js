@@ -56,7 +56,7 @@ app.put('/protestos-fondo', (req, res) => {
   let responses = []
   cheques.forEach(cheque => {
     let response = {
-      ejecucionCodigo: 'protestado',
+      ejecucionCodigo: 'error-no-pagado',
       cheque: {
           serial: cheque.serial,
           monto: 10,
