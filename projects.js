@@ -42,5 +42,9 @@ const projectChequeFondo = {
     saldoDisponibleTotal: 1,
     retenciones: 1
 }
+const projectDeudaMoraCHIP = {
+    detalleDeudaMora: 1,
+    deudaMoraTotal: 1
+}
 
-export { projectChequeForma, projectChequeFondo }
+export { projectChequeForma, projectChequeFondo, projectDeudaMoraCHIP }
