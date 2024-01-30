@@ -65,6 +65,24 @@ app.post('/creditos-hipotecarios-busquedas/por-rut-numero-operacion', (req, res)
       res.status(500).send(err)
     })
 })
+app.post('/leasing/obtenerCuota', (req, res) => {
+  let numOperacion = req.body.numOperacion
+  db.findData('bci_RegistroDeudaMora', { numOperacion: numOperacion }, proyects.porjectDeudaMoraLeasing)
+    .then(results => {
+      if (results.length === 0) {
+        res.status(404).send('No se encontraron deudas morosas para el número de operación ' + numOperacion)
+        return
+      }
+      if (results.length > 1) {
+        res.status(500).send('Se encontraron más de una deuda morosa para el número de operación ' + numOperacion)
+        return
+      }
+      res.send({cuotas: results[0].cuotas})
+    })
+    .catch(err => {
+      res.status(500).send(err)
+    })
+})
 /**
  * PUT urls
  */
