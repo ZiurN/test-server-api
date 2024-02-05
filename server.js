@@ -83,6 +83,22 @@ app.post('/leasing/obtenerCuota', (req, res) => {
       res.status(500).send(err)
     })
 })
+app.post('/credito-morosidad/obtener', (req, res) => {
+  let numeroOperacion = req.body.numeroOperacion.toString()
+  db.findData('bci_RegistroDeudaMora', { numeroOperacion: numeroOperacion }, proyects.projectDeudaMoraCC)
+    .then(results => {
+      if (results.length === 0) {
+        res.status(404).send('No se encontraron deudas morosas para el número de operación ' + numeroOperacion)
+        return
+      }
+      console.log(results)
+      res.send({detalleDeudaMora: results[0].detalleDeudaMora, deudaMoraTotal: results[0].deudaMoraTotal})
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+})
 /**
  * PUT urls
  */
