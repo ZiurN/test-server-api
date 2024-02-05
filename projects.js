@@ -46,8 +46,12 @@ const projectDeudaMoraCHIP = {
     detalleDeudaMora: 1,
     deudaMoraTotal: 1
 }
+const projectDeudaMoraCC = {
+    detalleMorosidad: 1,
+    deudaMoraTotal: 1
+}
 const porjectDeudaMoraLeasing = {
     cuotas: 1,
 }
 
-export { projectChequeForma, projectChequeFondo, projectDeudaMoraCHIP, porjectDeudaMoraLeasing }
+export { projectChequeForma, projectChequeFondo, projectDeudaMoraCHIP, projectDeudaMoraCC, porjectDeudaMoraLeasing }
