@@ -223,6 +223,30 @@ app.post('/credito-morosidad/pago', (req, res) => {
       return
   }
 })
+app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
+  /* para controlar la respuesta */
+  let tipoPago = 'ERROR'
+  /* variables del request */
+  let response = {}
+  switch (tipoPago) {
+    case 'ERROR':
+      response = {
+        "codigo": "VPE400",
+        "mensaje": "Parametros de entrada invalidos",
+        "detalles": [
+          {
+            "id": "identificacionCliente.rut",
+            "detalle": "El rut no es valido"
+          }
+        ]
+      }
+      res.status(400).send(response)
+      break
+    default:
+      res.status(500).send('Tipo de pago no soportado')
+      return
+  }
+})
 /**
  * PUT urls
  */
