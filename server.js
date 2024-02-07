@@ -156,7 +156,11 @@ app.post('/credito-morosidad/pago', (req, res) => {
           numeroCuota: cuota.numeroCuota,
           monto: cuota.montoPagar,
           tipoCancelacion: cuota.tipoCancelacion,
-          pagada: false
+          pagada: false,
+          pagoError: {
+            codigo: 'VPE400',
+            mensaje: 'Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 D09077036949 304',
+          }
         }
       })
       response.detallePago.montoTotalPagado = 0
@@ -188,7 +192,11 @@ app.post('/credito-morosidad/pago', (req, res) => {
           numeroCuota: cuota.numeroCuota,
           monto: cuota.monto,
           tipoCancelacion: cuota.tipoCancelacion,
-          pagada: idx != cuotasRecibidas.length - 1
+          pagada: idx != cuotasRecibidas.length - 1,
+          pagoError: idx != cuotasRecibidas.length - 1 ? null : {
+            codigo: 'VPE400',
+            mensaje: 'Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 D09077036949 304',
+          }
         }
       })
       response.detallePago.montoTotalPagado = montoTotalPagado
