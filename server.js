@@ -101,7 +101,7 @@ app.post('/credito-morosidad/obtener', (req, res) => {
 })
 app.post('/credito-morosidad/pago', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'DEFAULT'
+  let tipoPago = 'PAGO_EXITOSO'
   /* variables del request */
   let rutCliente = req.body.rutCliente.toString()
   let numeroOperacion = req.body.numeroOperacion.toString()
