@@ -101,7 +101,7 @@ app.post('/credito-morosidad/obtener', (req, res) => {
 })
 app.post('/credito-morosidad/pago', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'PAGO_FALLIDO'
+  let tipoPago = 'ERROR'
   /* variables del request */
   let rutCliente = req.body.rutCliente.toString()
   let numeroOperacion = req.body.numeroOperacion.toString()
@@ -159,7 +159,7 @@ app.post('/credito-morosidad/pago', (req, res) => {
           pagada: false,
           pagoError: {
             codigo: 'VPE400',
-            mensaje: 'Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 D09077036949 304',
+            mensaje: 'Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 ' + numeroOperacion + ' 304',
           }
         }
       })
@@ -212,10 +212,11 @@ app.post('/credito-morosidad/pago', (req, res) => {
         "detalles": [
           {
             "id": "CMM4",
-            "detalle": "Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 D09077036949 304"
+            "detalle": "Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 " + numeroOperacion + " 304"
           }
         ]
       }
+      res.status(400).send(response)
       break
     default:
       res.status(500).send('Tipo de pago no soportado')
