@@ -225,9 +225,18 @@ app.post('/credito-morosidad/pago', (req, res) => {
 })
 app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'ERROR'
+  let tipoPago = 'PAGO_PARCIAL'
   /* variables del request */
-  let response = {}
+  let cuentaCorriente = req.body.cuentaCorriente.toString()
+  let numeroOperacion = req.body.numeroOperacion.toString()
+  let cuotasRecibidas = req.body.cuotasMora
+  let cuotasFallidas = []
+  let cuotasEnDeuda = []
+  let response = {
+    cuentaCorriente,
+    numeroOperacion,
+    saldoDisponible: 152000,
+  }
   switch (tipoPago) {
     case 'ERROR':
       response = {
@@ -241,6 +250,41 @@ app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
         ]
       }
       res.status(400).send(response)
+      break
+    case 'PAGO_PARCIAL':
+      let montoTotalPagado = 0;
+      cuotasRecibidas.forEach((cuota, idx) => {
+        if (idx != cuotasRecibidas.length - 1) {
+          montoTotalPagado += cuota.totalDividendo
+        }
+        else {
+          cuotasEnDeuda.push({
+            numeroCuota: cuota.numeroCuota,
+            valorCuota: cuota.totalDividendo,
+            fechaVencimiento: '2021-01-12',
+            interes: 75000,
+            interesPenal: cuota.interesPenal,            gastoCobranza: cuota.gastoCobranza,
+            valorComision: 1200,
+            seguroAdicionales: 0,
+            subTotal: cuota.subTotal,
+            segDesgravamen: 3500,
+            seguroIncendio: 4200,
+            totalSeguros: 7700,
+            totalDividendo: cuota.totalDividendo,
+          })
+          cuotasFallidas.push({
+            numeroCuota: cuota.numeroCuota,
+            estado: 'Fallida'
+          })
+        }
+      })
+      response.montoPagado = montoTotalPagado
+      response.deudaMora = {
+        detalleDeudaMora: cuotasEnDeuda,
+        deudaMoraTotal: cuotasEnDeuda.reduce((monto, cuota) => monto + cuota.totalDividendo, 0)
+      }
+      response.cuotasFallidas = cuotasFallidas
+      res.status(200).send(response)
       break
     default:
       res.status(500).send('Tipo de pago no soportado')
