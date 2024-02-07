@@ -101,7 +101,7 @@ app.post('/credito-morosidad/obtener', (req, res) => {
 })
 app.post('/credito-morosidad/pago', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'PAGO_EXITOSO'
+  let tipoPago = 'PAGO_FALLIDO'
   /* variables del request */
   let rutCliente = req.body.rutCliente.toString()
   let numeroOperacion = req.body.numeroOperacion.toString()
@@ -131,7 +131,6 @@ app.post('/credito-morosidad/pago', (req, res) => {
       let montoTotalPagado = cuotasEntregadas.reduce((monto, cuota) => {
         return monto + Number(cuota.monto)
       }, 0)
-      console.log(montoTotalPagado)
       response.detallePago.montoTotalPagado = montoTotalPagado
       response.detallePago.cuotas = cuotasEntregadas
       response.detalleDeudaMora = []
@@ -140,23 +139,34 @@ app.post('/credito-morosidad/pago', (req, res) => {
       res.status(200).send(response)
       break
     case 'PAGO_FALLIDO':
+      let cuotasEnDeuda = []
       cuotasEntregadas = cuotasRecibidas.map(cuota => {
+        cuotasEnDeuda.push({
+          "numCuota": cuota.numeroCuota,
+          "valorCuota": cuota.montoPagar,
+          "fechaVencimiento": "2021-01-12",
+          "intereses": cuota.montoPagar * 0.03,
+          "interesGenerado": 16294,
+          "gastoCobranza": 0,
+          "valorComision": 0,
+          "totalCuota": cuota.montoPagar,
+          "interesesMora": 3989
+        })
         return {
           numeroCuota: cuota.numeroCuota,
-          monto: cuota.monto,
+          monto: cuota.montoPagar,
           tipoCancelacion: cuota.tipoCancelacion,
           pagada: false
         }
       })
       response.detallePago.montoTotalPagado = 0
       response.detallePago.cuotas = cuotasEntregadas
-      response.detalleDeudaMora = [...cuotasEntregadas]
+      response.detalleDeudaMora = cuotasEnDeuda
       response.deudaMoraTotal = cuotasEntregadas.reduce((monto, cuota) => monto + cuota.monto, 0)
       res.status(200).send(response)
       break
     case 'PAGO_PARCIAL':
       montoTotalPagado = 0;
-      let cuotasEnDeuda = []
       cuotasEntregadas = cuotasRecibidas.map((cuota, idx) => {
         if (idx != cuotasRecibidas.length - 1) {
           montoTotalPagado += cuota.monto
