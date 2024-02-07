@@ -123,12 +123,15 @@ app.post('/credito-morosidad/pago', (req, res) => {
       cuotasEntregadas = cuotasRecibidas.map(cuota => {
         return {
           numeroCuota: cuota.numeroCuota,
-          monto: cuota.monto,
+          monto: cuota.montoPagar,
           tipoCancelacion: cuota.tipoCancelacion,
           pagada: true
         }
       })
-      let montoTotalPagado = cuotasEntregadas.reduce((monto, cuota) => monto + cuota.montoPagar, 0)
+      let montoTotalPagado = cuotasEntregadas.reduce((monto, cuota) => {
+        return monto + Number(cuota.monto)
+      }, 0)
+      console.log(montoTotalPagado)
       response.detallePago.montoTotalPagado = montoTotalPagado
       response.detallePago.cuotas = cuotasEntregadas
       response.detalleDeudaMora = []
