@@ -99,6 +99,108 @@ app.post('/credito-morosidad/obtener', (req, res) => {
       res.status(500).send(err)
     })
 })
+app.post('/credito-morosidad/pago', (req, res) => {
+  /* para controlar la respuesta */
+  let tipoPago = 'PAGO_EXITOSO'
+  /* variables del request */
+  let rutCliente = req.body.rutCliente.toString()
+  let numeroOperacion = req.body.numeroOperacion.toString()
+  let cuenta = req.body.cuenta.toString()
+  let cuotasRecibidas = req.body.cuotas
+  let tipoCargo = req.body.tipoCargo.toString()
+  let detallePago = {
+    cuenta,
+    tipoCargo
+  }
+  let cuotasEntregadas = []
+  let response = {
+    rutCliente,
+    numeroOperacion,
+    detallePago,
+  }
+  switch (tipoPago) {
+    case 'PAGO_EXITOSO':
+      cuotasEntregadas = cuotasRecibidas.map(cuota => {
+        return {
+          numeroCuota: cuota.numeroCuota,
+          monto: cuota.monto,
+          tipoCancelacion: cuota.tipoCancelacion,
+          pagada: true
+        }
+      })
+      let montoTotalPagado = cuotasEntregadas.reduce((monto, cuota) => monto + cuota.montoPagar, 0)
+      response.detallePago.montoTotalPagado = montoTotalPagado
+      response.detallePago.cuotas = cuotasEntregadas
+      response.detalleDeudaMora = []
+      response.deudaMoraTotal = 0
+      console.log(response)
+      res.status(200).send(response)
+      break
+    case 'PAGO_FALLIDO':
+      cuotasEntregadas = cuotasRecibidas.map(cuota => {
+        return {
+          numeroCuota: cuota.numeroCuota,
+          monto: cuota.monto,
+          tipoCancelacion: cuota.tipoCancelacion,
+          pagada: false
+        }
+      })
+      response.detallePago.montoTotalPagado = 0
+      response.detallePago.cuotas = cuotasEntregadas
+      response.detalleDeudaMora = [...cuotasEntregadas]
+      response.deudaMoraTotal = cuotasEntregadas.reduce((monto, cuota) => monto + cuota.monto, 0)
+      res.status(200).send(response)
+      break
+    case 'PAGO_PARCIAL':
+      montoTotalPagado = 0;
+      let cuotasEnDeuda = []
+      cuotasEntregadas = cuotasRecibidas.map((cuota, idx) => {
+        if (idx != cuotasRecibidas.length - 1) {
+          montoTotalPagado += cuota.monto
+        }
+        else {
+          cuotasEnDeuda.push({
+            "numCuota": cuota.numeroCuota,
+            "valorCuota": cuota.montoPagar,
+            "fechaVencimiento": "2021-01-12",
+            "intereses": cuota.montoPagar * 0.03,
+            "interesGenerado": 16294,
+            "gastoCobranza": 0,
+            "valorComision": 0,
+            "totalCuota": cuota.montoPagar,
+            "interesesMora": 3989
+          })
+        }
+        return {
+          numeroCuota: cuota.numeroCuota,
+          monto: cuota.monto,
+          tipoCancelacion: cuota.tipoCancelacion,
+          pagada: idx != cuotasRecibidas.length - 1
+        }
+      })
+      response.detallePago.montoTotalPagado = montoTotalPagado
+      response.detallePago.cuotas = cuotasEntregadas
+      response.detalleDeudaMora = [...cuotasEntregadas]
+      response.deudaMoraTotal = cuotasEntregadas.reduce((monto, cuota) => monto + cuota.monto, 0)
+      res.status(200).send(response)
+      break
+    case 'ERROR':
+      response = {
+        "codigo": "VPE400",
+        "mensaje": "Parametros de entrada invalidos",
+        "detalles": [
+          {
+            "id": "CMM4",
+            "detalle": "Error en la consulta de creditos. Numero Oper IIC : NO EXISTE OPERACION-03 D09077036949 304"
+          }
+        ]
+      }
+      break
+    default:
+      res.status(500).send('Tipo de pago no soportado')
+      return
+  }
+})
 /**
  * PUT urls
  */
