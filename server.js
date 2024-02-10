@@ -375,6 +375,7 @@ const responseOK = (tipoPago, res, numProducto) => {
           mensaje: null,
           ...results[0],
           montoUtilizado: 12000,
+          interes: 1200,
           cuenta: {
             saldoDisponible: accounts[0].FinServ__Balance__c,
             disponibleLinea: 100000
