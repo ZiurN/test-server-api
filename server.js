@@ -297,109 +297,12 @@ app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
   let tipoPago = 'ABONO'
   /* variables del request */
   let numProducto = req.body.numeroProducto.toString()
-  let regExp = new RegExp(`.*${numProducto}`, 'g')
-  let filter = {
-    $or: [
-      { numeroCuentaCorriente: numProducto },
-      { numeroCuentaSobregiro: numProducto },
-      { numeroCuentaCorriente: { $regex: regExp } },
-      { numeroCuentaSobregiro: { $regex: regExp } }
-    ]
-  }
   switch (tipoPago) {
     case 'PAGO_EXITO':
-      db.findData('bci_RegistroDeudaMora', filter, proyects.projectDeudaMoraLSG)
-      .then(results => {
-        if (results.length === 0) {
-          res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
-          return
-        }
-        let accountFields = {
-          FinServ__FinancialAccountNumber__c: { $regex: regExp }
-        }
-        db.findData('bci_FinancialAccount', accountFields, proyects.projectFinancialAccount)
-          .then(accounts => {
-            if (results.length === 0) {
-              res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
-              return
-            }
-            let codigo = 'PAGO_EXITO'
-            let mensaje = 'Éxito pagando línea de sobregiro'
-            let data = {
-              mensaje: null,
-              ...results[0],
-              montoUtilizado: 12000,
-              cuenta: {
-                saldoDisponible: accounts[0].FinServ__Balance__c,
-                disponibleLinea: 100000
-              },
-              detalleCuenta: {
-                cuenta: results[0].numeroCuentaCorriente,
-              }
-            }
-            let response = {
-              codigo: codigo,
-              mensaje: mensaje,
-              data: data
-            }
-            res.status(200).send(response)
-          })
-          .catch(err => {
-            console.log(err)
-            res.status(500).send(err)
-          })
-      })
-      .catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
+      responseOK(tipoPago, res, numProducto)
     break
     case 'ABONO':
-      db.findData('bci_RegistroDeudaMora', filter, proyects.projectDeudaMoraLSG)
-      .then(results => {
-        if (results.length === 0) {
-          res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
-          return
-        }
-        let accountFields = {
-          FinServ__FinancialAccountNumber__c: { $regex: regExp }
-        }
-        db.findData('bci_FinancialAccount', accountFields, proyects.projectFinancialAccount)
-          .then(accounts => {
-            if (results.length === 0) {
-              res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
-              return
-            }
-            let codigo = 'ABONO'
-            let mensaje = 'Éxito pagando línea de sobregiro'
-            let data = {
-              mensaje: null,
-              ...results[0],
-              cuenta: {
-                saldoDisponible: accounts[0].FinServ__Balance__c,
-                disponibleLinea: 100000
-              },
-              detalleCuenta: {
-                cuenta: results[0].numeroCuentaCorriente,
-              }
-            }
-            let response = {
-              codigo: codigo,
-              mensaje: mensaje,
-              data: data
-            }
-            res.status(200).send(response)
-
-          })
-          .catch(err => {
-            console.log(err)
-            res.status(500).send(err)
-          })
-      })
-      .catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
+      responseOK(tipoPago, res, numProducto)
     break
     case 'PAGO_ERROR':
       res.status(400).send({
@@ -441,6 +344,62 @@ app.put('/protestos-fondo', (req, res) => {
   })
   res.send(responses)
 })
+
+const responseOK = (tipoPago, res, numProducto) => {
+  let regExp = new RegExp(`.*${numProducto}`, 'g')
+  let filter = {
+    $or: [
+      { numeroCuentaCorriente: numProducto },
+      { numeroCuentaSobregiro: numProducto },
+      { numeroCuentaCorriente: { $regex: regExp } },
+      { numeroCuentaSobregiro: { $regex: regExp } }
+    ]
+  }
+  db.findData('bci_RegistroDeudaMora', filter, proyects.projectDeudaMoraLSG)
+  .then(results => {
+    if (results.length === 0) {
+      res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
+      return
+    }
+    let accountFields = {
+      FinServ__FinancialAccountNumber__c: { $regex: regExp }
+    }
+    db.findData('bci_FinancialAccount', accountFields, proyects.projectFinancialAccount)
+      .then(accounts => {
+        if (results.length === 0) {
+          res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
+          return
+        }
+        let mensaje = 'Éxito pagando línea de sobregiro'
+        let data = {
+          mensaje: null,
+          ...results[0],
+          montoUtilizado: 12000,
+          cuenta: {
+            saldoDisponible: accounts[0].FinServ__Balance__c,
+            disponibleLinea: 100000
+          },
+          detalleCuenta: {
+            cuenta: results[0].numeroCuentaCorriente,
+          }
+        }
+        let response = {
+          codigo: tipoPago,
+          mensaje: mensaje,
+          data: data
+        }
+        res.status(200).send(response)
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+  })
+  .catch(err => {
+    console.log(err)
+    res.status(500).send(err)
+  })
+}
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
