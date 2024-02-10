@@ -67,7 +67,7 @@ app.post('/creditos-hipotecarios-busquedas/por-rut-numero-operacion', (req, res)
 })
 app.post('/leasing/obtenerCuota', (req, res) => {
   let numOperacion = req.body.numOperacion.toString()
-  db.findData('bci_RegistroDeudaMora', { numOperacion: numOperacion }, proyects.porjectDeudaMoraLeasing)
+  db.findData('bci_RegistroDeudaMora', { numOperacion: numOperacion }, proyects.projectDeudaMoraLeasing)
     .then(results => {
       if (results.length === 0) {
         res.status(404).send('No se encontraron deudas morosas para el número de operación ' + numOperacion)
@@ -291,6 +291,87 @@ app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
       res.status(500).send('Tipo de pago no soportado')
       return
   }
+})
+app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
+  /* para controlar la respuesta */
+  let tipoPago = 'LPV006'
+  /* variables del request */
+  let numProducto = req.body.numeroProducto.toString()
+  let filter = {
+    $or: [
+      { numeroCuentaCorriente: numProducto },
+      { numeroCuentaSobregiro: numProducto }
+    ]
+  }
+  switch (tipoPago) {
+    case 'PAGO_EXITO':
+      db.findData('bci_RegistroDeudaMora', filter, proyects.projectDeudaMoraLSG)
+      .then(results => {
+        if (results.length === 0) {
+          res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
+          return
+        }
+        let codigo = 'PAGO_EXITO'
+        let mensaje = 'Éxito pagando línea de sobregiro'
+        let data = {
+          mensaje: null,
+          ...results[0]
+        }
+        let response = {
+          codigo: codigo,
+          mensaje: mensaje,
+          data: data
+        }
+        res.status(200).send(response)
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+    break
+    case 'ABONO':
+      db.findData('bci_RegistroDeudaMora', filter, proyects.projectDeudaMoraLSG)
+      .then(results => {
+        if (results.length === 0) {
+          res.status(404).send('No se encontraron deudas morosas para el numero de cuenta ' + numProducto)
+          return
+        }
+        let codigo = 'ABONO'
+        let mensaje = 'Éxito pagando línea de sobregiro'
+        let data = {
+          mensaje: null,
+          ...results[0]
+        }
+        let response = {
+          codigo: codigo,
+          mensaje: mensaje,
+          data: data
+        }
+        res.status(200).send(response)
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+    break
+    case 'PAGO_ERROR':
+      res.status(400).send({
+        codigo: "PAGO_ERROR",
+        mensaje: "Error pagando linea sobregiro"
+    })
+    break
+    case 'LPV006':
+      res.status(400).send({
+        codigo: "LPV006",
+        mensaje: "Monto total a pagar mayor a la deuda"
+    })
+    break
+    default:
+      res.status(500).send('Error en el sistema de pagos, por favor intente más tarde')
+      return
+  }
+
+
 })
 /**
  * PUT urls
