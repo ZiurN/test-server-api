@@ -297,10 +297,13 @@ app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
   let tipoPago = 'ABONO'
   /* variables del request */
   let numProducto = req.body.numeroProducto.toString()
+  let regExp = new RegExp(`.*${numProducto}`, 'g')
   let filter = {
     $or: [
       { numeroCuentaCorriente: numProducto },
-      { numeroCuentaSobregiro: numProducto }
+      { numeroCuentaSobregiro: numProducto },
+      { numeroCuentaCorriente: { $regex: regExp } },
+      { numeroCuentaSobregiro: { $regex: regExp } }
     ]
   }
   switch (tipoPago) {
@@ -340,7 +343,10 @@ app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
         let mensaje = 'Éxito pagando línea de sobregiro'
         let data = {
           mensaje: null,
-          ...results[0]
+          ...results[0],
+          detalleCuenta: {
+            cuenta: results[0].numeroCuentaCorriente,
+          }
         }
         let response = {
           codigo: codigo,
