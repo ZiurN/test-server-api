@@ -294,7 +294,7 @@ app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
 })
 app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'LPV006'
+  let tipoPago = '500'
   /* variables del request */
   let numProducto = req.body.numeroProducto.toString()
   let filter = {
@@ -367,7 +367,10 @@ app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
     })
     break
     default:
-      res.status(500).send('Error en el sistema de pagos, por favor intente más tarde')
+      res.status(500).send({
+        codigo: "LPV006",
+        mensaje: "Error con el sistema de pagos, intente de nuevo más tarde"
+    })
       return
   }
 })
