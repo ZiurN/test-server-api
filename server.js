@@ -294,7 +294,7 @@ app.post('/creditos-hipotecarios-pagos/por-numero-operacion', (req, res) => {
 })
 app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
   /* para controlar la respuesta */
-  let tipoPago = 'ABONO'
+  let tipoPago = 'PAGO_EXITO'
   /* variables del request */
   let numProducto = req.body.numeroProducto.toString()
   switch (tipoPago) {
