@@ -331,7 +331,7 @@ app.post('/comex/obtenerCuota', (req, res) => {
           interesMora: 1231153.0,
           fechaVencimiento: "2020-12-30"
       },
-      mensajeSinMora: 'Cliente al dia'
+      mensajeSinMora: null
   })
 })
 /**
