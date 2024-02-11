@@ -324,6 +324,16 @@ app.post('/lineas-sobregiro-personas-pagos', (req, res) => {
       return
   }
 })
+app.post('/comex/obtenerCuota', (req, res) => {
+  res.status(200).send( {
+      cuota: {
+          montoTotal: 2462306.0,
+          interesMora: 1231153.0,
+          fechaVencimiento: "2020-12-30"
+      },
+      mensajeSinMora: 'Cliente al dia'
+  })
+})
 /**
  * PUT urls
  */
