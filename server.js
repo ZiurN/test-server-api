@@ -334,6 +334,17 @@ app.post('/comex/obtenerCuota', (req, res) => {
       mensajeSinMora: null
   })
 })
+app.post('/pdduty/testing', (req, res) => {
+  console.log(req.body)
+  res.status(200).send( {
+      cuota: {
+          montoTotal: 2462306.0,
+          interesMora: 1231153.0,
+          fechaVencimiento: "2020-12-30"
+      },
+      mensajeSinMora: null
+  })
+})
 /**
  * PUT urls
  */
